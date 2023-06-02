@@ -1,9 +1,11 @@
 # Build configuration
 # -------------------
 
-APP_NAME = "Silver Sky"
+APP_NAME = "Plugin UUID"
 GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 GIT_REVISION = `git rev-parse HEAD`
+
+SRC = 'src/**/*.purs'
 
 # Introspection targets
 # ---------------------
@@ -36,7 +38,7 @@ targets:
 
 .PHONY: clean
 clean: ## Remove build artifacts
-	rm -rf dist
+	rm -rf output .spago .psci_modules
 
 .PHONY: build
 build: ## Make a production build
@@ -44,30 +46,26 @@ build: ## Make a production build
 
 .PHONY: bundle
 bundle: ## Bundle
-	spago bundle-app --main Main --to dist/index.js
+	spago bundle-module --main Main --to dist/index.js
 
 # Development targets
 # -------------------
 
 .PHONY: deps
 deps: ## Install all dependencies
-	echo "todo"
+	spago install
 
 .PHONY: docs
 docs: ## Generate docs
 	spago docs --open
-
-.PHONY: run
-run: ## Run web app
-	spago run
 
 # Check, lint, format and test targets
 # ------------------------------------
 
 .PHONY: format
 format: ## Format everything
-	purs-tidy format-in-place "src/**/*.purs"
+	purs-tidy format-in-place $(SRC)
 
 .PHONY: test
 test: ## Test code
-	spago test
+	spago -x test.dhall test
