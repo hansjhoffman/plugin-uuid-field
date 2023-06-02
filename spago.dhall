@@ -1,7 +1,6 @@
 { name = "my-project"
 , dependencies =
   [ "bifunctors"
-  , "control"
   , "either"
   , "parsing"
   , "prelude"
