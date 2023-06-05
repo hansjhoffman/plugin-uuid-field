@@ -9,6 +9,7 @@ in pkgs.mkShell {
     pkgs.yarn
     pkgs.purescript
     pkgs.spago
+    pkgs.nodePackages.purescript-language-server
     pkgs.nodePackages.purs-tidy
   ];
 }

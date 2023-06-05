@@ -1,4 +1,9 @@
-module Main (parse, UUID(..)) where
+module Main
+  ( UUID
+  , format
+  , parse
+  , toString
+  ) where
 
 import Prelude
 
@@ -14,16 +19,23 @@ import Parsing.String.Basic as String.Basic
 
 newtype UUID = UUID String
 
-derive instance eqUUID :: Eq UUID
+instance showUUID :: Show UUID where
+  show (UUID uuid) = "(UUID " <> uuid <> ")"
 
-instance Show UUID where
-  show (UUID val) = "(UUID '" <> val <> "')"
-
--- show (UUID val) = "(UUID 'uuid:" <> "v1" <> ":" <> val <> "')" -- uuid:v1:95ecc380-afe9-11e4-9b6c-751b66dd541e
+instance eqUUID :: Eq UUID where
+  eq (UUID x) (UUID y) = x == y
 
 -- | Parse a possible uuid string.
 parse :: String -> Either String UUID
 parse = lmap Parsing.parseErrorMessage <<< flip Parsing.runParser parser
+
+-- | Converts a parsed UUID into a string.
+toString :: UUID -> String
+toString (UUID uuid) = uuid
+
+-- | Pretty formats a UUID (opinionated).
+format :: UUID -> UUID
+format (UUID uuid) = UUID $ Str.toLower uuid
 
 -- | INTERNAL
 -- |
