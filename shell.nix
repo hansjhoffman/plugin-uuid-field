@@ -7,6 +7,7 @@ in pkgs.mkShell {
     pkgs.nixfmt
     pkgs.nodejs-18_x
     pkgs.yarn
+    pkgs.esbuild
     pkgs.purescript
     pkgs.spago
     pkgs.nodePackages.purescript-language-server
