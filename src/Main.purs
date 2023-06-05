@@ -20,12 +20,12 @@ import Parsing.String.Basic as String.Basic
 newtype UUID = UUID String
 
 instance showUUID :: Show UUID where
-  show (UUID uuid) = "(UUID " <> uuid <> ")"
+  show (UUID uuid) = "(UUID " <> show uuid <> ")"
 
 instance eqUUID :: Eq UUID where
-  eq (UUID x) (UUID y) = x == y
+  eq (UUID uuid1) (UUID uuid2) = uuid1 == uuid2
 
--- | Parse a possible uuid string.
+-- | Parse a string as a possible uuid.
 parse :: String -> Either String UUID
 parse = lmap Parsing.parseErrorMessage <<< flip Parsing.runParser parser
 
