@@ -29,7 +29,6 @@ instance eqUUID :: Eq UUID where
 parse :: String -> Either String UUID
 parse = lmap Parsing.parseErrorMessage <<< flip Parsing.runParser parser
 
--- | Converts a parsed UUID into a string.
 toString :: UUID -> String
 toString (UUID uuid) = uuid
 
