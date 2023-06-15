@@ -8,6 +8,9 @@ var semigroupoidFn = {
     };
   }
 };
+var compose = function(dict) {
+  return dict.compose;
+};
 
 // output/Control.Category/index.js
 var identity = function(dict) {
@@ -46,6 +49,9 @@ var unit = void 0;
 var map = function(dict) {
   return dict.map;
 };
+var functorFn = {
+  map: /* @__PURE__ */ compose(semigroupoidFn)
+};
 
 // output/Control.Applicative/index.js
 var pure = function(dict) {
@@ -66,6 +72,21 @@ var discardUnit = {
   discard: function(dictBind) {
     return bind(dictBind);
   }
+};
+
+// output/Data.Semigroup/foreign.js
+var concatString = function(s1) {
+  return function(s2) {
+    return s1 + s2;
+  };
+};
+
+// output/Data.Semigroup/index.js
+var semigroupString = {
+  append: concatString
+};
+var append = function(dict) {
+  return dict.append;
 };
 
 // output/Control.Alt/index.js
@@ -206,6 +227,9 @@ var bottom = function(dict) {
 };
 
 // output/Data.Show/foreign.js
+var showIntImpl = function(n) {
+  return n.toString();
+};
 var showCharImpl = function(c) {
   var code = c.charCodeAt(0);
   if (code < 32 || code === 127) {
@@ -264,6 +288,9 @@ var showStringImpl = function(s) {
 // output/Data.Show/index.js
 var showString = {
   show: showStringImpl
+};
+var showInt = {
+  show: showIntImpl
 };
 var showChar = {
   show: showCharImpl
@@ -390,6 +417,17 @@ var euclideanRingInt = {
 };
 var div = function(dict) {
   return dict.div;
+};
+
+// output/Data.Monoid/index.js
+var monoidString = {
+  mempty: "",
+  Semigroup0: function() {
+    return semigroupString;
+  }
+};
+var mempty = function(dict) {
+  return dict.mempty;
 };
 
 // output/Data.Tuple/index.js
@@ -524,6 +562,32 @@ var traverseArrayImpl = function() {
   };
 }();
 
+// output/Data.Foldable/foreign.js
+var foldrArray = function(f) {
+  return function(init3) {
+    return function(xs) {
+      var acc = init3;
+      var len = xs.length;
+      for (var i = len - 1; i >= 0; i--) {
+        acc = f(xs[i])(acc);
+      }
+      return acc;
+    };
+  };
+};
+var foldlArray = function(f) {
+  return function(init3) {
+    return function(xs) {
+      var acc = init3;
+      var len = xs.length;
+      for (var i = 0; i < len; i++) {
+        acc = f(acc)(xs[i]);
+      }
+      return acc;
+    };
+  };
+};
+
 // output/Unsafe.Coerce/foreign.js
 var unsafeCoerce2 = function(x) {
   return x;
@@ -538,6 +602,65 @@ var coerce = function() {
 var coerce2 = /* @__PURE__ */ coerce();
 var unwrap = function() {
   return coerce2;
+};
+
+// output/Data.Foldable/index.js
+var foldr = function(dict) {
+  return dict.foldr;
+};
+var foldl = function(dict) {
+  return dict.foldl;
+};
+var intercalate = function(dictFoldable) {
+  var foldl2 = foldl(dictFoldable);
+  return function(dictMonoid) {
+    var append2 = append(dictMonoid.Semigroup0());
+    var mempty2 = mempty(dictMonoid);
+    return function(sep) {
+      return function(xs) {
+        var go = function(v) {
+          return function(v1) {
+            if (v.init) {
+              return {
+                init: false,
+                acc: v1
+              };
+            }
+            ;
+            return {
+              init: false,
+              acc: append2(v.acc)(append2(sep)(v1))
+            };
+          };
+        };
+        return foldl2(go)({
+          init: true,
+          acc: mempty2
+        })(xs).acc;
+      };
+    };
+  };
+};
+var foldMapDefaultR = function(dictFoldable) {
+  var foldr2 = foldr(dictFoldable);
+  return function(dictMonoid) {
+    var append2 = append(dictMonoid.Semigroup0());
+    var mempty2 = mempty(dictMonoid);
+    return function(f) {
+      return foldr2(function(x) {
+        return function(acc) {
+          return append2(f(x))(acc);
+        };
+      })(mempty2);
+    };
+  };
+};
+var foldableArray = {
+  foldr: foldrArray,
+  foldl: foldlArray,
+  foldMap: function(dictMonoid) {
+    return foldMapDefaultR(foldableArray)(dictMonoid);
+  }
 };
 
 // output/Data.Identity/index.js
@@ -1042,6 +1165,9 @@ var charAt = function(i) {
 // output/Data.String.Common/foreign.js
 var toLower = function(s) {
   return s.toLowerCase();
+};
+var trim = function(s) {
+  return s.trim();
 };
 
 // output/Data.String.Common/index.js
@@ -1567,6 +1693,9 @@ var runParserT$prime = function(dictMonadRec) {
 var position = /* @__PURE__ */ stateParserT(function(v) {
   return new Tuple(v.value1, v);
 });
+var parseErrorPosition = function(v) {
+  return v.value1;
+};
 var parseErrorMessage = function(v) {
   return v.value0;
 };
@@ -1865,9 +1994,14 @@ var takeWhile1 = function(predicate) {
 
 // output/Main/index.js
 var show3 = /* @__PURE__ */ show(showString);
+var show1 = /* @__PURE__ */ show(showInt);
+var intercalate4 = /* @__PURE__ */ intercalate(foldableArray)(monoidString);
 var bind2 = /* @__PURE__ */ bind(bindParserT);
 var discard2 = /* @__PURE__ */ discard(discardUnit)(bindParserT);
 var pure2 = /* @__PURE__ */ pure(applicativeParserT);
+var UUID = function(x) {
+  return x;
+};
 var toString = function(v) {
   return v;
 };
@@ -1875,6 +2009,22 @@ var showUUID = {
   show: function(v) {
     return "(UUID " + (show3(v) + ")");
   }
+};
+var prettyError = function(err) {
+  var msg = parseErrorMessage(err);
+  var v = parseErrorPosition(err);
+  return msg + (" starting at position " + show1(v.column));
+};
+var mkUUID = function(chunk1) {
+  return function(chunk2) {
+    return function(chunk3) {
+      return function(chunk4) {
+        return function(chunk5) {
+          return intercalate4("-")([chunk1, chunk2, chunk3, chunk4, chunk5]);
+        };
+      };
+    };
+  };
 };
 var parser = /* @__PURE__ */ bind2(/* @__PURE__ */ withErrorMessage(/* @__PURE__ */ takeWhile1(isHexDigit))("at least 1 hexadecimal char"))(function(chunk1) {
   return bind2($$char("-"))(function() {
@@ -1886,32 +2036,52 @@ var parser = /* @__PURE__ */ bind2(/* @__PURE__ */ withErrorMessage(/* @__PURE__
               return bind2($$char("-"))(function() {
                 return bind2(withErrorMessage(takeWhile1(isHexDigit))("at least 1 hexadecimal char"))(function(chunk5) {
                   return discard2(withErrorMessage(eof)("end of string"))(function() {
-                    var $17 = length4(chunk1) !== 8;
-                    if ($17) {
-                      return fail("Expected 1st chunk to be 8 hexadecimal chars");
+                    var $25 = length4(chunk1) !== 8;
+                    if ($25) {
+                      return failWithPosition("Expected 1st chunk to be 8 hexadecimal chars")({
+                        column: 1,
+                        index: 0,
+                        line: 1
+                      });
                     }
                     ;
-                    var $18 = length4(chunk2) !== 4;
-                    if ($18) {
-                      return fail("Expected 2nd chunk to be 4 hexadecimal chars");
+                    var $26 = length4(chunk2) !== 4;
+                    if ($26) {
+                      return failWithPosition("Expected 2nd chunk to be 4 hexadecimal chars")({
+                        column: 9,
+                        index: 8,
+                        line: 1
+                      });
                     }
                     ;
-                    var $19 = length4(chunk3) !== 4;
-                    if ($19) {
-                      return fail("Expected 3rd chunk to be 4 hexadecimal chars");
+                    var $27 = length4(chunk3) !== 4;
+                    if ($27) {
+                      return failWithPosition("Expected 3rd chunk to be 4 hexadecimal chars")({
+                        column: 14,
+                        index: 13,
+                        line: 1
+                      });
                     }
                     ;
-                    var $20 = length4(chunk4) !== 4;
-                    if ($20) {
-                      return fail("Expected 4th chunk to be 4 hexadecimal chars");
+                    var $28 = length4(chunk4) !== 4;
+                    if ($28) {
+                      return failWithPosition("Expected 4th chunk to be 4 hexadecimal chars")({
+                        column: 19,
+                        index: 18,
+                        line: 1
+                      });
                     }
                     ;
-                    var $21 = length4(chunk5) !== 12;
-                    if ($21) {
-                      return fail("Expected 5th chunk to be 12 hexadecimal chars");
+                    var $29 = length4(chunk5) !== 12;
+                    if ($29) {
+                      return failWithPosition("Expected 5th chunk to be 12 hexadecimal chars")({
+                        column: 24,
+                        index: 23,
+                        line: 1
+                      });
                     }
                     ;
-                    return pure2(chunk1 + ("-" + (chunk2 + ("-" + (chunk3 + ("-" + (chunk4 + ("-" + chunk5))))))));
+                    return pure2(mkUUID(chunk1)(chunk2)(chunk3)(chunk4)(chunk5));
                   });
                 });
               });
@@ -1922,16 +2092,16 @@ var parser = /* @__PURE__ */ bind2(/* @__PURE__ */ withErrorMessage(/* @__PURE__
     });
   });
 });
-var parse = /* @__PURE__ */ function() {
-  var $25 = lmap(bifunctorEither)(parseErrorMessage);
-  var $26 = flip(runParser)(parser);
-  return function($27) {
-    return $25($26($27));
+var parse_ = /* @__PURE__ */ function() {
+  var $32 = lmap(bifunctorEither)(prettyError);
+  var $33 = flip(runParser)(parser);
+  return function($34) {
+    return $32($33(trim($34)));
   };
 }();
-var format = function(v) {
-  return toLower(v);
-};
+var format = /* @__PURE__ */ map(functorFn)(UUID)(function($35) {
+  return toLower(toString($35));
+});
 var eqUUID = {
   eq: function(v) {
     return function(v1) {
@@ -1942,7 +2112,7 @@ var eqUUID = {
 export {
   eqUUID,
   format,
-  parse,
+  parse_,
   showUUID,
   toString
 };

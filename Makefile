@@ -5,8 +5,6 @@ APP_NAME = "Plugin UUID"
 GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 GIT_REVISION = `git rev-parse HEAD`
 
-SRC = 'src/**/*.purs'
-
 # Introspection targets
 # ---------------------
 
@@ -46,7 +44,7 @@ build: ## Make a production build
 
 .PHONY: bundle
 bundle: ## Bundle
-	spago bundle-module --main Main --to dist/index.js
+	spago bundle-module --main Main --to dist/index.js --platform node
 
 # Development targets
 # -------------------
@@ -55,16 +53,12 @@ bundle: ## Bundle
 deps: ## Install all dependencies
 	spago install
 
-.PHONY: docs
-docs: ## Generate docs
-	spago docs --open
-
 # Check, lint, format and test targets
 # ------------------------------------
 
 .PHONY: format
 format: ## Format everything
-	purs-tidy format-in-place $(SRC)
+	purs-tidy format-in-place `git ls-files '*.purs'`
 
 .PHONY: test
 test: ## Test code

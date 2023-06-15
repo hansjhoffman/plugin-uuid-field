@@ -2,6 +2,7 @@
 , dependencies =
   [ "bifunctors"
   , "either"
+  , "foldable-traversable"
   , "parsing"
   , "prelude"
   , "strings"
