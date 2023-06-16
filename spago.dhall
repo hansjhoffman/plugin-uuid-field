@@ -3,6 +3,7 @@
   [ "bifunctors"
   , "either"
   , "foldable-traversable"
+  , "newtype"
   , "parsing"
   , "prelude"
   , "strings"

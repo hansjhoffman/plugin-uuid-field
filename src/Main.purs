@@ -1,8 +1,8 @@
 module Main
-  ( UUID
-  , format
+  ( UUID(..)
+  , format_
   , parse_
-  , toString
+  , toString_
   ) where
 
 import Prelude
@@ -10,7 +10,10 @@ import Prelude
 import Data.Bifunctor (lmap)
 import Data.CodePoint.Unicode as Unicode
 import Data.Either (Either)
-import Data.Foldable as Data.Foldable
+import Data.Foldable (intercalate)
+import Data.Generic.Rep (class Generic)
+import Data.Newtype (class Newtype, over, unwrap)
+import Data.Show.Generic (genericShow)
 import Data.String as Data.String
 import Parsing (Parser)
 import Parsing as Parsing
@@ -20,11 +23,14 @@ import Parsing.String.Basic as String.Basic
 
 newtype UUID = UUID String
 
-instance showUUID :: Show UUID where
-  show (UUID uuid) = "(UUID " <> show uuid <> ")"
+derive instance newtypeUUID :: Newtype UUID _
 
-instance eqUUID :: Eq UUID where
-  eq (UUID uuid1) (UUID uuid2) = uuid1 == uuid2
+derive instance eqUUID :: Eq UUID
+
+derive instance genericUUID :: Generic UUID _
+
+instance showUUID :: Show UUID where
+  show = genericShow
 
 -- | INTERNAL
 -- |
@@ -69,30 +75,32 @@ parser = do
     Parsing.failWithPosition "Expected 5th chunk to be 12 hexadecimal chars" $
       Parsing.Position { column: 24, index: 23, line: 1 }
   else
-    pure $ mkUUID chunk1 chunk2 chunk3 chunk4 chunk5
-
--- | Internal
-mkUUID :: String -> String -> String -> String -> String -> UUID
-mkUUID chunk1 chunk2 chunk3 chunk4 chunk5 =
-  UUID $ Data.Foldable.intercalate "-" [ chunk1, chunk2, chunk3, chunk4, chunk5 ]
-
--- | INTERNAL
-prettyError :: Parsing.ParseError -> String
-prettyError err = msg <> " starting at position " <> show col
-  where
-  msg = Parsing.parseErrorMessage err
-  Parsing.Position { column: col, index: _, line: _ } = Parsing.parseErrorPosition err
+    pure $ UUID
+      ( intercalate "-"
+          [ chunk1
+          , chunk2
+          , chunk3
+          , chunk4
+          , chunk5
+          ]
+      )
 
 -- | Parse a string as a possible uuid.
 parse_ :: String -> Either String UUID
 parse_ = lmap prettyError
   <<< flip Parsing.runParser parser
   <<< Data.String.trim
+  where
+  prettyError :: Parsing.ParseError -> String
+  prettyError err = msg <> " starting at position " <> show col
+    where
+    msg = Parsing.parseErrorMessage err
+    Parsing.Position { column: col, index: _, line: _ } = Parsing.parseErrorPosition err
 
--- | Unwrap UUID type
-toString :: UUID -> String
-toString (UUID uuid) = uuid
+-- | Unwraps a UUID type
+toString_ :: UUID -> String
+toString_ = unwrap
 
 -- | Pretty formats a UUID (opinionated).
-format :: UUID -> UUID
-format = UUID <$> Data.String.toLower <<< toString
+format_ :: UUID -> UUID
+format_ = over UUID Data.String.toLower
