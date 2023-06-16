@@ -85,17 +85,18 @@ parser = do
           ]
       )
 
+-- | INTERNAL
+prettyError :: Parsing.ParseError -> String
+prettyError err = msg <> " starting at position " <> show col
+  where
+  msg = Parsing.parseErrorMessage err
+  Parsing.Position { column: col, index: _, line: _ } = Parsing.parseErrorPosition err
+
 -- | Parse a string as a possible uuid.
 parse_ :: String -> Either String UUID
 parse_ = lmap prettyError
   <<< flip Parsing.runParser parser
   <<< Data.String.trim
-  where
-  prettyError :: Parsing.ParseError -> String
-  prettyError err = msg <> " starting at position " <> show col
-    where
-    msg = Parsing.parseErrorMessage err
-    Parsing.Position { column: col, index: _, line: _ } = Parsing.parseErrorPosition err
 
 -- | Unwraps a UUID type
 toString_ :: UUID -> String
