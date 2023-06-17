@@ -60,19 +60,19 @@ parser = do
   Parsing.String.eof <?> "end of string"
 
   if (Data.String.length chunk1 /= 8) then
-    Parsing.failWithPosition "Expected 1st chunk to be 8 hexadecimal chars" $
+    Parsing.failWithPosition "Expected 8 hexadecimal chars" $
       Parsing.Position { column: 1, index: 0, line: 1 }
   else if (Data.String.length chunk2 /= 4) then
-    Parsing.failWithPosition "Expected 2nd chunk to be 4 hexadecimal chars" $
+    Parsing.failWithPosition "Expected 4 hexadecimal chars" $
       Parsing.Position { column: 9, index: 8, line: 1 }
   else if (Data.String.length chunk3 /= 4) then
-    Parsing.failWithPosition "Expected 3rd chunk to be 4 hexadecimal chars" $
+    Parsing.failWithPosition "Expected 4 hexadecimal chars" $
       Parsing.Position { column: 14, index: 13, line: 1 }
   else if (Data.String.length chunk4 /= 4) then
-    Parsing.failWithPosition "Expected 4th chunk to be 4 hexadecimal chars" $
+    Parsing.failWithPosition "Expected 4 hexadecimal chars" $
       Parsing.Position { column: 19, index: 18, line: 1 }
   else if (Data.String.length chunk5 /= 12) then
-    Parsing.failWithPosition "Expected 5th chunk to be 12 hexadecimal chars" $
+    Parsing.failWithPosition "Expected 12 hexadecimal chars" $
       Parsing.Position { column: 24, index: 23, line: 1 }
   else
     pure $ UUID

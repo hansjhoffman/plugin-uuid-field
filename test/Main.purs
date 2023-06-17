@@ -38,12 +38,12 @@ main = launchAff_ $ runSpec [ consoleReporter ] do
       assertLeft (parse_ "k5ecc380-afe9-11e4-9b6c-751b66dd541e")
         $ "Expected at least 1 hexadecimal char starting at position 1" -- invalid hexadecimal
       assertLeft (parse_ "5ecc380-afe9-11e4-9b6c-751b66dd541e")
-        $ "Expected 1st chunk to be 8 hexadecimal chars starting at position 1" -- invalid length
+        $ "Expected 8 hexadecimal chars starting at position 1" -- invalid length
       assertLeft (parse_ "95ecc380-fe9-11e4-9b6c-751b66dd541e")
-        $ "Expected 2nd chunk to be 4 hexadecimal chars starting at position 9" -- invalid length
+        $ "Expected 4 hexadecimal chars starting at position 9" -- invalid length
       assertLeft (parse_ "95ecc380-afe9-1e4-9b6c-751b66dd541e")
-        $ "Expected 3rd chunk to be 4 hexadecimal chars starting at position 14" -- invalid length
+        $ "Expected 4 hexadecimal chars starting at position 14" -- invalid length
       assertLeft (parse_ "95ecc380-afe9-11e4-b6c-751b66dd541e")
-        $ "Expected 4th chunk to be 4 hexadecimal chars starting at position 19" -- invalid length
+        $ "Expected 4 hexadecimal chars starting at position 19" -- invalid length
       assertLeft (parse_ "95ecc380-afe9-11e4-9b6c-51b66dd541e")
-        $ "Expected 5th chunk to be 12 hexadecimal chars starting at position 24" -- invalid length
+        $ "Expected 12 hexadecimal chars starting at position 24" -- invalid length
