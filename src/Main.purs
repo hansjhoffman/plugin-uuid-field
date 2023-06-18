@@ -24,9 +24,7 @@ import Parsing.String.Basic (takeWhile1)
 newtype UUID = UUID String
 
 derive instance newtypeUUID :: Newtype UUID _
-
 derive instance eqUUID :: Eq UUID
-
 derive instance genericUUID :: Generic UUID _
 
 instance showUUID :: Show UUID where
@@ -38,14 +36,10 @@ instance showUUID :: Show UUID where
 -- | https://www.ietf.org/rfc/rfc4122.txt
 parser :: Parser String UUID
 parser = do
-  chunk1 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
-  _ <- char '-'
-  chunk2 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
-  _ <- char '-'
-  chunk3 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
-  _ <- char '-'
-  chunk4 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
-  _ <- char '-'
+  chunk1 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char" <* char '-'
+  chunk2 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char" <* char '-'
+  chunk3 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char" <* char '-'
+  chunk4 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char" <* char '-'
   chunk5 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
   eof <?> "end of string"
 
