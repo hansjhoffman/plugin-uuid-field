@@ -8,18 +8,18 @@ module Main
 import Prelude
 
 import Data.Bifunctor (lmap)
-import Data.CodePoint.Unicode as Unicode
+import Data.CodePoint.Unicode (isHexDigit)
 import Data.Either (Either)
 import Data.Foldable (intercalate)
 import Data.Generic.Rep (class Generic)
 import Data.Newtype (class Newtype, over, unwrap)
 import Data.Show.Generic (genericShow)
-import Data.String as Data.String
-import Parsing (Parser)
+import Data.String as String
+import Parsing (ParseError, Parser, Position(..))
 import Parsing as Parsing
 import Parsing.Combinators ((<?>))
-import Parsing.String as Parsing.String
-import Parsing.String.Basic as String.Basic
+import Parsing.String (char, eof)
+import Parsing.String.Basic (takeWhile1)
 
 newtype UUID = UUID String
 
@@ -38,42 +38,32 @@ instance showUUID :: Show UUID where
 -- | https://www.ietf.org/rfc/rfc4122.txt
 parser :: Parser String UUID
 parser = do
-  chunk1 <-
-    String.Basic.takeWhile1 Unicode.isHexDigit
-      <?> "at least 1 hexadecimal char"
-  _ <- Parsing.String.char '-'
-  chunk2 <-
-    String.Basic.takeWhile1 Unicode.isHexDigit
-      <?> "at least 1 hexadecimal char"
-  _ <- Parsing.String.char '-'
-  chunk3 <-
-    String.Basic.takeWhile1 Unicode.isHexDigit
-      <?> "at least 1 hexadecimal char"
-  _ <- Parsing.String.char '-'
-  chunk4 <-
-    String.Basic.takeWhile1 Unicode.isHexDigit
-      <?> "at least 1 hexadecimal char"
-  _ <- Parsing.String.char '-'
-  chunk5 <-
-    String.Basic.takeWhile1 Unicode.isHexDigit
-      <?> "at least 1 hexadecimal char"
-  Parsing.String.eof <?> "end of string"
+  chunk1 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
+  _ <- char '-'
+  chunk2 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
+  _ <- char '-'
+  chunk3 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
+  _ <- char '-'
+  chunk4 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
+  _ <- char '-'
+  chunk5 <- takeWhile1 isHexDigit <?> "at least 1 hexadecimal char"
+  eof <?> "end of string"
 
-  if (Data.String.length chunk1 /= 8) then
+  if (String.length chunk1 /= 8) then
     Parsing.failWithPosition "Expected 8 hexadecimal chars" $
-      Parsing.Position { column: 1, index: 0, line: 1 }
-  else if (Data.String.length chunk2 /= 4) then
+      Position { column: 1, index: 0, line: 1 }
+  else if (String.length chunk2 /= 4) then
     Parsing.failWithPosition "Expected 4 hexadecimal chars" $
-      Parsing.Position { column: 9, index: 8, line: 1 }
-  else if (Data.String.length chunk3 /= 4) then
+      Position { column: 9, index: 8, line: 1 }
+  else if (String.length chunk3 /= 4) then
     Parsing.failWithPosition "Expected 4 hexadecimal chars" $
-      Parsing.Position { column: 14, index: 13, line: 1 }
-  else if (Data.String.length chunk4 /= 4) then
+      Position { column: 14, index: 13, line: 1 }
+  else if (String.length chunk4 /= 4) then
     Parsing.failWithPosition "Expected 4 hexadecimal chars" $
-      Parsing.Position { column: 19, index: 18, line: 1 }
-  else if (Data.String.length chunk5 /= 12) then
+      Position { column: 19, index: 18, line: 1 }
+  else if (String.length chunk5 /= 12) then
     Parsing.failWithPosition "Expected 12 hexadecimal chars" $
-      Parsing.Position { column: 24, index: 23, line: 1 }
+      Position { column: 24, index: 23, line: 1 }
   else
     pure $ UUID
       ( intercalate "-"
@@ -86,17 +76,17 @@ parser = do
       )
 
 -- | INTERNAL
-prettyError :: Parsing.ParseError -> String
+prettyError :: ParseError -> String
 prettyError err = msg <> " starting at position " <> show col
   where
   msg = Parsing.parseErrorMessage err
-  Parsing.Position { column: col, index: _, line: _ } = Parsing.parseErrorPosition err
+  Position { column: col, index: _, line: _ } = Parsing.parseErrorPosition err
 
 -- | Parse a string as a possible uuid.
 parse_ :: String -> Either String UUID
 parse_ = lmap prettyError
   <<< flip Parsing.runParser parser
-  <<< Data.String.trim
+  <<< String.trim
 
 -- | Unwraps a UUID type
 toString_ :: UUID -> String
@@ -104,4 +94,4 @@ toString_ = unwrap
 
 -- | Pretty formats a UUID (opinionated).
 format_ :: UUID -> UUID
-format_ = over UUID Data.String.toLower
+format_ = over UUID String.toLower
