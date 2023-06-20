@@ -2,7 +2,7 @@ module Main
   ( UUID(..)
   , format_
   , parse_
-  , toString_
+  , print_
   ) where
 
 import Prelude
@@ -82,8 +82,8 @@ parse_ = lmap prettyError
   <<< flip Parsing.runParser parser
 
 -- | Unwraps a UUID type
-toString_ :: UUID -> String
-toString_ = unwrap
+print_ :: UUID -> String
+print_ = unwrap
 
 -- | Pretty formats a UUID (opinionated).
 format_ :: UUID -> UUID
