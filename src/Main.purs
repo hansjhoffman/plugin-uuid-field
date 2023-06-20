@@ -80,7 +80,6 @@ prettyError err = msg <> " starting at position " <> show col
 parse_ :: String -> Either String UUID
 parse_ = lmap prettyError
   <<< flip Parsing.runParser parser
-  <<< String.trim
 
 -- | Unwraps a UUID type
 toString_ :: UUID -> String
